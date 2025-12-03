@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ChatMessage {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  session_id   String       @db.Uuid
+  role         message_role @default(USER)
+  content      String
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  chat_session ChatSession  @relation(fields: [session_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([session_id, created_at], map: "idx_chat_message_session_created")
+  @@map("chat_message")
+}
+
+model ChatSession {
+  id             String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  visitor_id     String
+  status         chat_session_status @default(ACTIVE)
+  metadata       Json                @default("{}")
+  created_at     DateTime            @default(now()) @db.Timestamptz(6)
+  last_active_at DateTime            @default(now()) @db.Timestamptz(6)
+  chat_message   ChatMessage[]
+
+  @@index([last_active_at], map: "idx_chat_session_last_active_at")
+  @@map("chat_session")
+}
+
+model Contacts {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String?
+  email               String?
+  summary             String?
+  message             String?
+  created_at          DateTime? @default(now()) @db.Timestamptz(6)
+  conversation_source String?
+  sessionId           String?
+  agent_reply         String?
+
+  @@map("contacts")
+}
+
+enum chat_session_status {
+  ACTIVE
+  INACTIVE
+  CLOSED
+}
+
+enum message_role {
+  USER
+  BOT
+  SYSTEM
+}

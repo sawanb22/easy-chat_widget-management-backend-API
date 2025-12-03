@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Widget Test Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+    }
+    h1 { color: #172DB1; }
+    .test-content {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .instructions {
+      background: #e8f4ff;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .instructions h3 { margin-top: 0; }
+    .instructions ol { margin-bottom: 0; }
+    code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-content">
+    <h1>🚀 Pixel Punch Chat Widget Test</h1>
+    
+    <div class="instructions">
+      <h3>Testing Instructions:</h3>
+      <ol>
+        <li>Make sure the backend server is running at <code>http://localhost:3001</code></li>
+        <li>Click the chat button in the bottom-right corner</li>
+        <li>Fill in the contact form (Name & Email)</li>
+        <li>Click "Start Chat" - your details will be sent as the first message</li>
+        <li>Wait for the AI response (typing indicator will show)</li>
+        <li>Continue the conversation!</li>
+      </ol>
+    </div>
+    
+    <h2>Test Scenarios:</h2>
+    <ul>
+      <li>✅ Connection status indicator (green when connected)</li>
+      <li>✅ Contact form submission</li>
+      <li>✅ Typing indicator while waiting for response</li>
+      <li>✅ Message history restoration on reconnect</li>
+      <li>✅ End Chat button clears session</li>
+      <li>✅ Session timeout handling from backend</li>
+    </ul>
+    
+    <p><strong>Note:</strong> Open browser console (F12) to see debug logs.</p>
+  </div>
+
+  <!-- Include the chat widget below -->
+  <!-- Copy everything from header-widget.html here -->
+  
+<!-- === Pixel Punch Chatbot Widget === -->
+
+<!-- CSS STYLES -->
+<style>
+  /* Inter font */
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+  /* Define theme colors */
+  :root {
+    --pixel-primary: #172DB1;
+    --pixel-dark: #212529;
+    --pixel-white: #ffffff;
+    
+    /* Futuristic Gradient & Body Palette */
+    --pixel-grad-1: #007BFF;
+    --pixel-grad-2: #6F42C1;
+    --pixel-grad-3: #00D4FF;
+    --pixel-light-bg: #f4f7fc;
+    --pixel-light-violet: #f8f6ff;
+  }
+
+  /* Chat toggle button */
+  #pixel-chat-toggle {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    
+    /* Animated Gradient Background */
+    background: linear-gradient(135deg, var(--pixel-grad-1), var(--pixel-grad-2), var(--pixel-grad-3));
+    background-size: 200% 200%;
+    animation: gradient-shift 4s ease infinite;
+    transition: all 0.3s ease;
+  }
+
+  /* Gradient animation */
+  @keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Pulse animation */
+  #pixel-chat-toggle::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.5);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(111, 66, 193, 0.5); }
+    70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(111, 66, 193, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(111, 66, 193, 0); }
+  }
+
+  /* Icon switching */
+  #pixel-chat-toggle .chat-icon,
+  #pixel-chat-toggle .close-icon {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    position: absolute;
+  }
+  
+  #pixel-chat-toggle .close-icon {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  
+  #pixel-chat-toggle.active .chat-icon {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  
+  #pixel-chat-toggle.active .close-icon {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  /* Chat window container */
+  #pixel-chat-window {
+    font-family: 'Inter', sans-serif;
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 360px;
+    height: 80vh;
+    max-height: 580px;
+    background: var(--pixel-white);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 25px rgba(111, 66, 193, 0.1); 
+
+    opacity: 0;
+    transform: translateY(20px);
+    visibility: hidden;
+    transition: all 0.3s ease-out;
+    
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Active state for the chat window */
+  #pixel-chat-window.active {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+  }
+
+  /* Chat window header */
+  .pixel-chat-header {
+    position: relative;
+    background: var(--pixel-primary);
+    color: var(--pixel-white);
+    padding: 12px 50px 12px 20px;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+  
+  .pixel-chat-header h3 {
+    margin: 0;
+    font-weight: 600;
+    color: #ffffff !important;
+  }
+  
+  .pixel-chat-header p {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    opacity: 0.9;
+    color: #ffffff !important;
+  }
+
+  /* Close button in the header */
+  #pixel-chat-close {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 20px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--pixel-white);
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  #pixel-chat-close:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  /* Chat message area */
+  .pixel-chat-body {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: linear-gradient(180deg, var(--pixel-light-bg) 0%, var(--pixel-light-violet) 100%);
+  }
+
+  /* Individual messages */
+  .pixel-chat-message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pixel-chat-message .bubble {
+    padding: 12px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-width: 80%;
+  }
+
+  /* Bot messages */
+  .pixel-chat-message.bot {
+    align-items: flex-start;
+  }
+  .pixel-chat-message.bot .bubble {
+    background: var(--pixel-white);
+    color: var(--pixel-dark);
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  /* User messages */
+  .pixel-chat-message.user {
+    align-items: flex-end;
+  }
+  .pixel-chat-message.user .bubble {
+    background: linear-gradient(135deg, var(--pixel-grad-1), var(--pixel-grad-2));
+    color: var(--pixel-white);
+    border-bottom-right-radius: 6px;
+  }
+
+  /* Timestamp for messages */
+  .pixel-chat-message .time {
+    font-size: 0.75rem;
+    color: #999;
+    margin-top: 4px;
+  }
+  .pixel-chat-message.user .time {
+    align-self: flex-end;
+  }
+  .pixel-chat-message.bot .time {
+    align-self: flex-start;
+  }
+
+  /* Chat input footer */
+  .pixel-chat-footer {
+    padding: 15px;
+    background: var(--pixel-light-bg);
+    border-top: 1px solid #eee;
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.03);
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    border-radius: 0 0 20px 20px;
+  }
+
+  /* Input field */
+  #pixel-chat-input {
+    flex-grow: 1;
+    background: var(--pixel-white);
+    border: 1px solid var(--pixel-primary);
+    border-radius: 25px;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+
+  /* Input focus with glow */
+  #pixel-chat-input:focus {
+    border-color: var(--pixel-primary);
+    box-shadow: 0 0 0 6px rgba(23, 45, 177, 0.12);
+  }
+
+  /* Send button */
+  #pixel-chat-send {
+    background: var(--pixel-primary);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #pixel-chat-send:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 18px rgba(23, 45, 177, 0.14);
+  }
+
+  #pixel-chat-send svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Typing indicator */
+  .pixel-chat-message.typing .bubble {
+    background: var(--pixel-white);
+    color: var(--pixel-dark);
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 16px;
+  }
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #aaa;
+    margin: 0 2px;
+    animation: typing-blink 1.4s infinite both;
+  }
+  .typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  @keyframes typing-blink {
+    0% { opacity: 0.2; }
+    20% { opacity: 1; }
+    100% { opacity: 0.2; }
+  }
+
+  /* Contact Form Overlay */
+  #pixel-contact-form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--pixel-white);
+    border-radius: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 25px;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  #pixel-contact-form.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  #pixel-contact-form h3 {
+    color: var(--pixel-primary);
+    font-size: 1.3rem;
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+
+  #pixel-contact-form p {
+    color: var(--pixel-dark);
+    opacity: 0.7;
+    font-size: 0.9rem;
+    margin: 0 0 25px;
+    line-height: 1.5;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    display: block;
+    color: var(--pixel-dark);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--pixel-primary);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .form-group input:focus {
+    border-color: var(--pixel-primary);
+    box-shadow: 0 0 0 3px rgba(23, 45, 177, 0.1);
+  }
+
+  #pixel-form-submit {
+    background: var(--pixel-primary);
+    color: var(--pixel-white);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  #pixel-form-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(23, 45, 177, 0.2);
+  }
+
+  #pixel-form-submit:active {
+    transform: translateY(0);
+  }
+
+  /* Connection status indicator */
+  .pixel-connection-status {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 8px;
+  }
+  .pixel-connection-status.connected {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+  }
+  .pixel-connection-status.disconnected {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    #pixel-chat-window {
+      width: 90%;
+      right: 5%;
+      left: 5%;
+    }
+  }
+</style>
+
+<!-- HTML Structure -->
+
+<!-- The Chat Toggle Button -->
+<button id="pixel-chat-toggle" aria-label="Open Chat">
+  <!-- Default chat icon -->
+  <svg class="chat-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
+  <!-- Close icon (hidden by default) -->
+  <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+</button>
+
+<!-- The Chat Window (hidden by default) -->
+<div id="pixel-chat-window">
+  
+  <!-- Contact Form Overlay -->
+  <div id="pixel-contact-form">
+    <h3>Welcome to PixelPunch! 👋</h3>
+    <p>Let's get started. Please share your details:</p>
+    
+    <form id="pixel-user-form">
+      <div class="form-group">
+        <label for="pixel-user-name">Your Name *</label>
+        <input type="text" id="pixel-user-name" name="name" placeholder="John Doe" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="pixel-user-email">Your Email *</label>
+        <input type="email" id="pixel-user-email" name="email" placeholder="john@example.com" required>
+      </div>
+      
+      <button type="submit" id="pixel-form-submit">Start Chat</button>
+    </form>
+  </div>
+  
+  <!-- Header -->
+  <div class="pixel-chat-header">
+    <h3>LUNA <span id="pixel-conn-status" class="pixel-connection-status disconnected">●</span></h3>
+    <p>Always on Assistant</p>
+    <!-- End Chat Button -->
+    <button id="pixel-chat-close" aria-label="End Chat">
+      End Chat
+    </button>
+  </div>
+  
+  <!-- Message Body -->
+  <div class="pixel-chat-body" id="pixel-chat-body">
+    <!-- Messages will appear here after form submission -->
+  </div>
+  
+  <!-- Input Footer -->
+  <div class="pixel-chat-footer">
+    <input type="text" id="pixel-chat-input" placeholder="Type your message...">
+    <button id="pixel-chat-send" aria-label="Send Message">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+  
+</div>
+
+<!-- Load Socket.IO from middleware (localhost for testing) -->
+<script src="http://localhost:3001/socket.io/socket.io.js"></script>
+
+<!-- JavaScript Logic -->
+<script>
+(function() {
+  'use strict';
+  
+  // =====================================================
+  // CONFIGURATION - Change to deployed URL for production
+  // =====================================================
+  const MIDDLEWARE_URL = 'http://localhost:3001';
+  
+  // =====================================================
+  // STATE
+  // =====================================================
+  let socket = null;
+  let sessionId = null;
+  let isConnected = false;
+  let isWaitingForResponse = false;
+  let reconnectAttempts = 0;
+  const MAX_RECONNECT_ATTEMPTS = 5;
+  
+  // User data from contact form
+  let userData = { name: '', email: '' };
+  
+  // =====================================================
+  // DOM ELEMENTS
+  // =====================================================
+  const elements = {
+    toggleBtn: document.getElementById('pixel-chat-toggle'),
+    chatWindow: document.getElementById('pixel-chat-window'),
+    chatBody: document.getElementById('pixel-chat-body'),
+    chatInput: document.getElementById('pixel-chat-input'),
+    sendBtn: document.getElementById('pixel-chat-send'),
+    closeBtn: document.getElementById('pixel-chat-close'),
+    contactForm: document.getElementById('pixel-contact-form'),
+    userForm: document.getElementById('pixel-user-form'),
+    connStatus: document.getElementById('pixel-conn-status'),
+    nameInput: document.getElementById('pixel-user-name'),
+    emailInput: document.getElementById('pixel-user-email')
+  };
+  
+  // =====================================================
+  // UTILITY FUNCTIONS
+  // =====================================================
+  function generateId() {
+    return 'xxxx-xxxx-xxxx'.replace(/x/g, () => 
+      Math.floor(Math.random() * 16).toString(16)
+    );
+  }
+  
+  function getVisitorId() {
+    let id = localStorage.getItem('pixel_visitor_id');
+    if (!id) {
+      id = 'visitor-' + generateId();
+      localStorage.setItem('pixel_visitor_id', id);
+    }
+    return id;
+  }
+  
+  function formatTime(date) {
+    return (date || new Date()).toLocaleTimeString('en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: true 
+    });
+  }
+  
+  function getStoredSession() {
+    return localStorage.getItem('pixel_session_id');
+  }
+  
+  function hasCompletedForm() {
+    const sid = getStoredSession();
+    return sid && localStorage.getItem('pixel_form_done_' + sid);
+  }
+  
+  function markFormComplete() {
+    if (sessionId) {
+      localStorage.setItem('pixel_form_done_' + sessionId, '1');
+    }
+  }
+  
+  function clearSession() {
+    const oldSid = getStoredSession();
+    if (oldSid) {
+      localStorage.removeItem('pixel_form_done_' + oldSid);
+    }
+    localStorage.removeItem('pixel_session_id');
+    sessionId = null;
+    userData = { name: '', email: '' };
+  }
+  
+  // =====================================================
+  // UI FUNCTIONS
+  // =====================================================
+  function updateConnectionStatus(connected) {
+    isConnected = connected;
+    if (elements.connStatus) {
+      elements.connStatus.className = 'pixel-connection-status ' + 
+        (connected ? 'connected' : 'disconnected');
+    }
+  }
+  
+  function addMessage(content, sender, timestamp) {
+    // Remove typing indicator if adding bot message
+    if (sender === 'bot') {
+      removeTypingIndicator();
+    }
+    
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'pixel-chat-message ' + sender;
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = content;
+    
+    const time = document.createElement('span');
+    time.className = 'time';
+    time.textContent = formatTime(timestamp);
+    
+    msgDiv.appendChild(bubble);
+    msgDiv.appendChild(time);
+    elements.chatBody.appendChild(msgDiv);
+    elements.chatBody.scrollTop = elements.chatBody.scrollHeight;
+  }
+  
+  function showTypingIndicator() {
+    if (document.getElementById('typing-indicator')) return;
+    
+    const indicator = document.createElement('div');
+    indicator.id = 'typing-indicator';
+    indicator.className = 'pixel-chat-message bot typing';
+    indicator.innerHTML = `
+      <div class="bubble">
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+        <span class="typing-dot"></span>
+      </div>
+    `;
+    elements.chatBody.appendChild(indicator);
+    elements.chatBody.scrollTop = elements.chatBody.scrollHeight;
+  }
+  
+  function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) indicator.remove();
+    isWaitingForResponse = false;
+  }
+  
+  function clearChatMessages() {
+    const msgs = elements.chatBody.querySelectorAll('.pixel-chat-message');
+    msgs.forEach(m => m.remove());
+  }
+  
+  function showContactForm() {
+    elements.contactForm.classList.remove('hidden');
+    elements.nameInput.value = '';
+    elements.emailInput.value = '';
+  }
+  
+  function hideContactForm() {
+    elements.contactForm.classList.add('hidden');
+  }
+  
+  function toggleChatWindow() {
+    const isOpening = !elements.chatWindow.classList.contains('active');
+    
+    elements.chatWindow.classList.toggle('active');
+    elements.toggleBtn.classList.toggle('active');
+    
+    if (isOpening) {
+      // Connect socket when opening
+      connectSocket();
+      
+      // Show form if not completed
+      if (!hasCompletedForm()) {
+        showContactForm();
+      } else {
+        hideContactForm();
+      }
+    }
+  }
+  
+  // =====================================================
+  // SOCKET.IO CONNECTION
+  // =====================================================
+  function connectSocket() {
+    // Already connected
+    if (socket && socket.connected) return;
+    
+    // Clean up old socket
+    if (socket) {
+      socket.removeAllListeners();
+      socket.disconnect();
+    }
+    
+    const visitorId = getVisitorId();
+    const storedSession = getStoredSession();
+    
+    socket = io(MIDDLEWARE_URL, {
+      auth: {
+        visitorId: visitorId,
+        sessionId: storedSession || undefined
+      },
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: MAX_RECONNECT_ATTEMPTS,
+      reconnectionDelay: 1000,
+      timeout: 10000
+    });
+    
+    // --- Connection Events ---
+    socket.on('connect', () => {
+      console.log('✅ Connected to middleware');
+      updateConnectionStatus(true);
+      reconnectAttempts = 0;
+    });
+    
+    socket.on('disconnect', (reason) => {
+      console.log('🔌 Disconnected:', reason);
+      updateConnectionStatus(false);
+      
+      // If server closed connection, might need full reset
+      if (reason === 'io server disconnect') {
+        handleSessionClosed();
+      }
+    });
+    
+    socket.on('connect_error', (err) => {
+      console.error('❌ Connection error:', err.message);
+      updateConnectionStatus(false);
+      reconnectAttempts++;
+      
+      if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+        removeTypingIndicator();
+        addMessage('Unable to connect. Please refresh the page.', 'bot');
+      }
+    });
+    
+    // --- Session Events ---
+    socket.on('session', (data) => {
+      console.log('📋 Session:', data.sessionId);
+      sessionId = data.sessionId;
+      localStorage.setItem('pixel_session_id', sessionId);
+    });
+    
+    // --- History (previous messages) ---
+    socket.on('history', (messages) => {
+      console.log('📜 History:', messages.length, 'messages');
+      
+      // Clear and reload
+      clearChatMessages();
+      
+      messages.forEach(msg => {
+        const sender = msg.sender === 'USER' ? 'user' : 'bot';
+        addMessage(msg.content, sender, new Date(msg.createdAt));
+      });
+    });
+    
+    // --- New Message ---
+    socket.on('message', (msg) => {
+      console.log('💬 Message:', msg.sender, msg.content.substring(0, 50));
+      
+      const sender = msg.sender === 'USER' ? 'user' : 'bot';
+      addMessage(msg.content, sender, new Date(msg.createdAt));
+      
+      // Stop waiting if bot responded
+      if (msg.sender === 'BOT') {
+        isWaitingForResponse = false;
+      }
+    });
+    
+    // --- Session Status (closed by backend) ---
+    socket.on('status', (data) => {
+      console.log('📊 Status:', data.status);
+      if (data.status === 'CLOSED') {
+        handleSessionClosed();
+      }
+    });
+    
+    // --- Errors ---
+    socket.on('error', (err) => {
+      console.error('❌ Error:', err.message);
+      removeTypingIndicator();
+      addMessage('Something went wrong. Please try again.', 'bot');
+    });
+  }
+  
+  function disconnectSocket() {
+    if (socket) {
+      socket.removeAllListeners();
+      socket.disconnect();
+      socket = null;
+    }
+    updateConnectionStatus(false);
+  }
+  
+  function handleSessionClosed() {
+    // Backend closed the session (timeout, etc.)
+    removeTypingIndicator();
+    clearSession();
+    clearChatMessages();
+    showContactForm();
+    addMessage('Session ended. Please start a new conversation.', 'bot');
+  }
+  
+  // =====================================================
+  // SEND MESSAGE
+  // =====================================================
+  function sendMessage(content) {
+    if (!content || !content.trim()) return;
+    if (!sessionId || !isConnected) {
+      addMessage('Not connected. Please wait...', 'bot');
+      connectSocket();
+      return;
+    }
+    
+    // Prevent double-send while waiting
+    if (isWaitingForResponse) return;
+    
+    const message = content.trim();
+    
+    // Clear input
+    elements.chatInput.value = '';
+    
+    // Show typing indicator
+    showTypingIndicator();
+    isWaitingForResponse = true;
+    
+    // Send to backend
+    socket.emit('message', {
+      sessionId: sessionId,
+      content: message
+    });
+    
+    console.log('📤 Sent:', message.substring(0, 50));
+  }
+  
+  // =====================================================
+  // EVENT HANDLERS
+  // =====================================================
+  
+  // Toggle button
+  if (elements.toggleBtn) {
+    elements.toggleBtn.addEventListener('click', toggleChatWindow);
+  }
+  
+  // Send button
+  if (elements.sendBtn) {
+    elements.sendBtn.addEventListener('click', () => {
+      sendMessage(elements.chatInput.value);
+    });
+  }
+  
+  // Enter key to send
+  if (elements.chatInput) {
+    elements.chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage(elements.chatInput.value);
+      }
+    });
+  }
+  
+  // Contact form submission
+  if (elements.userForm) {
+    elements.userForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = elements.nameInput.value.trim();
+      const email = elements.emailInput.value.trim();
+      
+      if (!name || !email) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      userData.name = name;
+      userData.email = email;
+      
+      // Hide form immediately
+      hideContactForm();
+      
+      // Connect if not connected
+      if (!socket || !socket.connected) {
+        connectSocket();
+      }
+      
+      // Wait for session, then send intro message
+      const waitForSession = () => {
+        if (sessionId && isConnected) {
+          // Send user details as first message
+          const introMessage = `Name: ${userData.name}, Email: ${userData.email}`;
+          sendMessage(introMessage);
+          markFormComplete();
+        } else {
+          // Retry after short delay
+          setTimeout(waitForSession, 200);
+        }
+      };
+      
+      waitForSession();
+    });
+  }
+  
+  // Close/End chat button
+  if (elements.closeBtn) {
+    elements.closeBtn.addEventListener('click', () => {
+      // Disconnect and clear everything
+      disconnectSocket();
+      clearSession();
+      clearChatMessages();
+      showContactForm();
+      
+      // Close window
+      elements.chatWindow.classList.remove('active');
+      elements.toggleBtn.classList.remove('active');
+    });
+  }
+  
+  // =====================================================
+  // INITIALIZATION
+  // =====================================================
+  // Check if form was already completed for existing session
+  if (hasCompletedForm()) {
+    hideContactForm();
+  }
+  
+  console.log('🚀 Pixel Chat Widget initialized');
+  console.log('📡 Middleware URL:', MIDDLEWARE_URL);
+
+})();
+</script>
+
+<!-- === End Pixel Punch Chatbot === -->
+
+</body>
+</html>

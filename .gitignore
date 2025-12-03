@@ -1,0 +1,51 @@
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.*
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+combined.log
+error.log
+server.log
+
+# Editor directories and files
+.vscode/
+.idea/
+.DS_Store
+
+# OS files
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary
+*.tmp
+*.temp
+
+# Prisma
+/prisma/dev.db
+/prisma/.env
+
+# Public / static (keep but don't ignore unless you want to)
+# public/
+
+# WordPress widget code (not required for backend deployment)
+/wordpress site code to deploy on wordpress global header/
+
+# Optional: ignore test files
+test-*.js
+
+# Ignore local node-debug or IDE run files
+.run/

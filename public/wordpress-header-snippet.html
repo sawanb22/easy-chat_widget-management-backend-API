@@ -1,0 +1,28 @@
+<!--
+  =====================================================
+  n8n Chat Widget — WordPress Header Global Snippet
+  =====================================================
+  
+  INSTRUCTIONS:
+  1. Go to your WordPress Admin → Appearance → Theme Editor
+     (or use a plugin like "Insert Headers and Footers")
+  2. Paste this entire block into the <head> section (Header Global code).
+  3. Replace YOUR_MIDDLEWARE_URL with your deployed middleware domain
+     (e.g., https://chat-api.yourdomain.com)
+  4. Save and visit your site — the chat widget will appear in the bottom-right corner.
+
+  HOW IT WORKS:
+  • Sets window.CHAT_MIDDLEWARE_URL so the widget knows where to connect.
+  • Loads the widget script from your middleware's /public/chat-widget.js.
+  • The widget auto-loads Socket.IO, connects via WebSocket, and handles:
+      – Session creation/restoration (persisted in localStorage)
+      – Sending user messages → middleware → n8n → AI reply back
+      – Heartbeat pings every 30 seconds to keep the session alive
+  • You can style the widget by editing public/chat-widget.js on your server.
+-->
+
+<script>
+  // Point to your deployed middleware backend (no trailing slash)
+  window.CHAT_MIDDLEWARE_URL = 'https://YOUR_MIDDLEWARE_URL';
+</script>
+<script src="https://YOUR_MIDDLEWARE_URL/public/chat-widget.js" defer></script>
