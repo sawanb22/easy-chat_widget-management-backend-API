@@ -10,6 +10,26 @@ import { createSocketManager } from './services/socketManager';
 import { startCleanupJob } from './services/cleanupJob';
 import logger from './utils/logger';
 
+// ===================
+// STARTUP DIAGNOSTICS (for Render logs)
+// ===================
+console.log('=== CHAT MIDDLEWARE STARTING ===');
+console.log('Environment:', process.env.NODE_ENV || 'development');
+console.log('Port:', process.env.PORT || '(not set, will use default)');
+console.log('CORS_ORIGIN set:', !!process.env.CORS_ORIGIN);
+console.log('DATABASE_URL set:', !!process.env.DATABASE_URL);
+console.log('N8N_WEBHOOK_URL set:', !!process.env.N8N_WEBHOOK_URL);
+
+// Global error handlers (so crashes appear in Render logs)
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+  logger.error('UNCAUGHT EXCEPTION', err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION:', reason);
+  logger.error('UNHANDLED REJECTION', reason);
+});
+
 const app = express();
 const httpServer = createServer(app);
 
@@ -204,9 +224,21 @@ const io = createSocketManager(httpServer);
 // ===================
 startCleanupJob();
 
+// Test database connection at startup
+async function testDbConnection() {
+  try {
+    await prisma.$connect();
+    console.log('✅ Database connected successfully');
+  } catch (err) {
+    console.error('❌ Database connection FAILED:', err);
+  }
+}
+testDbConnection();
+
 const PORT = env.port || 3001;
 
 httpServer.listen(PORT, () => {
+    console.log(`🚀 Server listening on port ${PORT}`);
     logger.info(`🚀 Middleware Backend running on http://localhost:${PORT}`);
     logger.info(`📡 WebSocket ready for connections`);
     logger.info(`🔗 REST API endpoints:`);

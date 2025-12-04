@@ -113,7 +113,12 @@ async function handleConnection(
       data: { last_active_at: new Date(), status: chat_session_status.ACTIVE },
     });
   } catch (error) {
-    logger.error('Socket connection failed', error);
+    // Log to both Winston AND console (so Render shows it)
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const errStack = error instanceof Error ? error.stack : '';
+    console.error('❌ Socket connection failed:', errMsg);
+    console.error('Stack:', errStack);
+    logger.error('Socket connection failed', { message: errMsg, stack: errStack });
     socket.emit('error', { message: 'Unable to start chat session. Please refresh and try again.' });
     socket.disconnect(true);
   }
