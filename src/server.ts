@@ -235,7 +235,8 @@ async function testDbConnection() {
 }
 testDbConnection();
 
-const PORT = env.port || 3001;
+// Cloud Run requires explicit process.env.PORT priority
+const PORT = Number(process.env.PORT) || env.port || 3001;
 
 httpServer.listen(PORT, () => {
     console.log(`🚀 Server listening on port ${PORT}`);
